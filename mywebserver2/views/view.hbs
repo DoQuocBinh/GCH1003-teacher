@@ -13,24 +13,31 @@
 
 <body>
     <h1>All employees</h1>
+    <form action="/search" method="post">
+        <input type="text" name="txtName"  placeholder="Enter name to search" size="30" 
+            style="margin: 10px;">
+        <input type="submit" value="search">
+    </form>
     <table class="table">
         <thead>
             <tr>
                 <th>Name</th>
                 <th>Country</th>
+                <th>Edit</th>
             </tr>
         </thead>
         <tbody>
             {{#each ds}}
             <tr>
                 <td>
-                    <a href="/delete?name={{name}}">{{name}}</a>
+                    <a href="/delete?name={{name}}" onclick="return confirm('Are you sure?')">{{name}}</a>
                 </td>
                 {{#if country}}
                     <td>{{country}}</td>
                 {{else}}
                     <td style="color: red;">Not available!</td>
                 {{/if}}
+                <td><a href="/edit?id={{id}}">Edit</a></td>
             </tr>
             {{/each}}
         </tbody>
