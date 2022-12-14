@@ -1,26 +1,43 @@
 const { Int32, ObjectId } = require('bson')
 var express = require('express')
+const { insertProduct,getAllProducts,
+        deleteProductById,updateProduct,findProductById,searchProductByName } = require('./databaseHandler')
 var app = express()
-
-var MongoClient = require('mongodb').MongoClient
-var url = 'mongodb://0.0.0.0:27017'
 
 app.set('view engine','hbs')
 app.use(express.urlencoded({extended:true}))
 
+
+app.post('/search',async (req,res)=>{
+    const search = req.body.search
+    const results = await searchProductByName(search)
+    console.log(results)
+    res.render('view',{'results':results})
+})
+
+app.post('/edit',async (req,res)=>{
+    const id = req.body.id
+    const name = req.body.txtName
+    const price = req.body.txtPrice
+    const picture = req.body.txtPic
+    await updateProduct(id, name, price, picture)
+    res.redirect('/view')
+})
+
+app.get('/edit',async (req,res)=>{
+    const id = req.query.id
+    const productToEdit = await findProductById(id)
+    res.render('edit',{product:productToEdit})
+})
+
 app.get('/delete',async (req,res)=>{
     const id = req.query.id
-    let client = await MongoClient.connect(url)
-    let db = client.db("GCH1003") 
-    await db.collection("products").deleteOne({_id:ObjectId(id)})
+    await deleteProductById(id)
     res.redirect('/view')
 })
 
 app.get('/view',async (req,res)=>{
-    let client = await MongoClient.connect(url)
-    let db = client.db("GCH1003") 
-    const results = await db.collection("products").find().toArray()
-    console.log(results)
+    const results = await getAllProducts()
     res.render('view',{'results':results})
 })
 
@@ -33,9 +50,7 @@ app.post('/new',async (req,res)=>{
         price: Number.parseInt(price) ,
         pictureURL: picture
     }
-    let client = await MongoClient.connect(url)
-    let db = client.db("GCH1003") 
-    let newId =await db.collection("products").insertOne(newProduct)
+    let newId = await insertProduct(newProduct)
     console.log(newId.insertedId)
     res.render('home')
 })
@@ -51,3 +66,5 @@ app.get('/',(req,res)=>{
 const PORT = process.env.PORT || 3000
 app.listen(PORT)
 console.log("Server is up!")
+
+
