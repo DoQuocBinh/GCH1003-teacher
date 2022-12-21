@@ -34,7 +34,7 @@ async function findProductById(id) {
 async function searchProductByName(name){
     let client = await MongoClient.connect(url)
     let db = client.db("GCH1003")
-    const results = await db.collection("products").find({ name: new RegExp(name) }).toArray()
+    const results = await db.collection("products").find({ name: new RegExp(name,'i') }).toArray()
     return results
 }
 module.exports = {insertProduct,getAllProducts,deleteProductById,updateProduct,
